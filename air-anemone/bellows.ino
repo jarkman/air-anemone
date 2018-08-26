@@ -14,8 +14,8 @@
 BME280 bme280Atmospheric;
 BME280 bme280Airbox;
 
-int muxAddressAtmospheric = 4;
-int muxAddressAirbox = 3;
+int muxAddressAtmospheric = 7;
+int muxAddressAirbox = 1;
 
 void setupFixedPressures()
 {
@@ -85,7 +85,7 @@ void Bellows::setup()
   {
     Serial.print("n "); Serial.print(n);
     Serial.println("Failed to read BME280 for bellows");
-    delay(1000);
+
   }
 
  

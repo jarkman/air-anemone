@@ -11,7 +11,7 @@ void setupDisplay()
   int fh = oled.getFontHeight();
 
   oled.setCursor(0,y);
-  oled.print("[triffid]!");
+  oled.print("[anemone]");
   oled.display();   
 
 

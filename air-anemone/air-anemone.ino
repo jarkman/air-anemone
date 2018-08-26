@@ -30,23 +30,21 @@
 //    D1 SCL
 //    D2 SDA
 //      wired to OLED and to mux and to servo board
-// PS2 uses D3 D4 D6 D8
-// Neopixels are on D6
+
 // Encoder is on D5 & D7, switch on D0, pulling to ground
 
 // or, in order:
 // D0 Encoder switch
 // D1 SCL
 // D2 SDA
-// D3 Neopixels 0  via CD40109BE A p3 -> E p4   http://www.ti.com/lit/ds/symlink/cd40109b.pdf
-// D4 Neopixels 1                B p6 -> F p5
+// D3 -
+// D4 -
 // D5 Encoder A    
-// D6 Neopixels 2                C  p10 -> G p11
+// D6 -
 // D7 Encoder B
 // D8 - 
 
 
-// Each node has one compass sensor and either two or zero rangers
 
 // i2c addresses:
 // Oled   : 0x3C
@@ -56,16 +54,19 @@
 
 // Mux    : 0x70, 0x71
 // and beyond the mux:
-//  LSM303 : 0x19 & 0x1E
+
 //  BMP280: 0x76
 
 
 // Mux channels:
-// 0: bellows 0  BMP280 and low LSM303
-// 1: bellows 1  BMP280 and high LSM303
-// 2: bellows 2  BMP280
-// 3: airbox pressure BMP280
-// 4: atmospheric pressure BMP280 (on control board)
+// 0: bellows 0  BMP280, main chamber pressure
+// 1: airbox pressure BMP280
+// 2: 
+// 3:
+// 4:
+// 5:
+// 6: 
+// 7: atmospheric pressure BMP280 (on control board)
 
 
 
@@ -83,7 +84,7 @@
 boolean trace = false;          // activity tracing for finding crashes - leave off to get better response times
 boolean traceBehaviour = true;
 boolean traceNodes = false;
-boolean tracePressures = false;
+boolean tracePressures = true;
 boolean tracePirs = false;
 
 boolean enableBellows = true;  // turn on/off bellows code
@@ -108,8 +109,9 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 
 
-#define BELLOWS 3
-// servo numbers on the PWM servo driver
+#define BELLOWS 1
+
+//Bellows( int n,  int _muxAddress, int _inflateServo, int _deflateServo );
 Bellows bellows[] = {Bellows(0,                    0, 0, 1)};
 
 
