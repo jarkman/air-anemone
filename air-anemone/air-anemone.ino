@@ -69,8 +69,6 @@
 // 7: atmospheric pressure BMP280 (on control board)
 
 
-
-#include "Node.h"
 #include <Wire.h>
 //#include <Servo.h>
 #include <SFE_MicroOLED.h>  // Include the SFE_MicroOLED library
@@ -194,8 +192,7 @@ void setup() {
 
   setupWifi();
   
-  //baseServo.attach(D7); 
-  //tipServo.attach(D8); 
+
 
   for( int b = 0; b < BELLOWS; b ++ )
   {
