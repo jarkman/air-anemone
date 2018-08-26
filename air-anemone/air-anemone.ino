@@ -124,8 +124,7 @@ long uiState = 1;
 
 char report[80];
 
-float bendTargetX = 0.0; // -1.0 to 1.0
-float bendTargetY = 0.0;
+
 
 boolean gotNunchuck = false;
 
@@ -155,7 +154,7 @@ float loopSeconds = 0.1; // duration of our loop() in seconds, used for normalis
 #define SELFTEST_MILLIS 10000 //10000
 #define NUM_SELFTEST 5
 // target pressure ratios for chambers
-float selftest[NUM_SELFTEST][3] = {{1.0,1.0,1.0},{1.0,0.0,0.0},{0.0,1.0,0.0},{0.0,0.0,1.0},{1.0,1.0,1.0}};
+float selftest[NUM_SELFTEST][1] = {{0.0},{0.2},{0.5},{1.0},{0.1}}; 
 int nextSelftest = -1;
 long selftestStartMillis = -1;
 
