@@ -11,28 +11,43 @@
 #define SERVOMIN  130 //150 // this is the 'minimum' pulse length count (out of 4096)
 #define SERVOMAX  550 //600 // this is the 'maximum' pulse length count (out of 4096)
 
-BME280 bme280Atmospheric;
-BME280 bme280Airbox;
+Adafruit_BMP280 bmp280Atmospheric;
+Adafruit_BMP280 bmp280Airbox;
 
 int muxAddressAtmospheric = 7;
 int muxAddressAirbox = 1;
+
+void startBmp280( Adafruit_BMP280 *b)
+{
+
+  if (! b->begin(0x76)) {
+        Serial.println("Could not find a valid BME280 sensor, check wiring!");
+        
+    }
+/*
+    b->setSampling(Adafruit_BMP280::MODE_NORMAL,
+                    Adafruit_BMP280::SAMPLING_X2,  // temperature
+                    Adafruit_BMP280::SAMPLING_X16, // pressure
+                    Adafruit_BMP280::SAMPLING_X1,  // humidity
+                    Adafruit_BMP280::FILTER_X16,
+                    Adafruit_BMP280::STANDBY_MS_0_5 );
+                    */
+
+
+
+}
 
 void setupFixedPressures()
 {
     
   muxSelect(muxAddressAtmospheric);
-  bme280Atmospheric.setI2CAddress(0x76);
-  if (! bme280Atmospheric.beginI2C() )
-  {
-    Serial.println("Failed to read BME280 for atmospheric");
-  }
+  startBmp280(&bmp280Atmospheric);
+  
   
   muxSelect(muxAddressAirbox);
-  bme280Airbox.setI2CAddress(0x76);
-  if (! bme280Airbox.beginI2C() )
-  {
-    Serial.println("Failed to read BME280 for airbox");
-  }
+
+  startBmp280(&bmp280Airbox);
+
 }
 
 boolean goodPressure( float pressure )
@@ -43,12 +58,12 @@ boolean goodPressure( float pressure )
 void readFixedPressures()
 {
   muxSelect(muxAddressAtmospheric);
-  atmosphericAbsPressure = bme280Atmospheric.readFloatPressure();
+  atmosphericAbsPressure = bmp280Atmospheric.readPressure();
   if( tracePressures ) { Serial.print(" atmosphericAbsPressure "); Serial.println(atmosphericAbsPressure);}
 
   
   muxSelect(muxAddressAirbox);
-  airboxAbsPressure = bme280Airbox.readFloatPressure();
+  airboxAbsPressure = bmp280Airbox.readPressure();
 
   if( tracePressures ) { Serial.print(" airboxAbsPressure "); Serial.println(airboxAbsPressure);}
 
@@ -80,15 +95,7 @@ void Bellows::setup()
 {
   
   muxSelect(muxAddress);
-  bme280.setI2CAddress(0x76);
-  if (! bme280.beginI2C() )
-  {
-    Serial.print("n "); Serial.print(n);
-    Serial.println("Failed to read BME280 for bellows");
-
-  }
-
- 
+  startBmp280(&bmp280);
 /*
   
   delay(300);
@@ -105,7 +112,7 @@ void Bellows::loop()
 {
 
   muxSelect(muxAddress);
-  float pressure = bme280.readFloatPressure();
+  float pressure = bmp280.readPressure();
 
   if( tracePressures ) { Serial.print("n "); Serial.print(n);  Serial.print(" pressure "); Serial.println(pressure);}
 
