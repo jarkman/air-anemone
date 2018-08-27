@@ -218,7 +218,7 @@ void setupServoDriver()
 void loopBreathe()
 {
   // modulate overall pressure up & down a bit ihn a slow sine
-  float theta = 2 * PI * (millis() - breatheStartT)/breathePeriod;
+  float theta = 2 * PI * fmod( (millis() - breatheStartT), breathePeriod ) / breathePeriod;
 
    
   breatheFraction = 1.0 - breatheAmplitude * 0.5 * sin(theta);
@@ -287,14 +287,14 @@ boolean loopManual()
 }
 
 
-void setInflateAmount(float x)
+void setInflateAmount(float x) // 0.0 to 1.0 for 'just up' to 'full pressure'
 {
-  // at 0,0, set all three to nominal pressure
+ 
   for( int b = 0; b < BELLOWS; b ++ )
   {
     Bellows *bellow = &(bellows[b]);
 
-    bellow->targetPressure = baselinePressure * (0.2 + 0.8*x);
+    bellow->targetPressure = baselinePressure * x; //(0.2 + 0.8*x);
   }
 
 
