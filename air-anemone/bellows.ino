@@ -3,9 +3,9 @@
 
 // Servo pos for valve open/close
 #define SERVO_CLOSE_DEGREES 50.0 //20.0
-#define SERVO_OPEN_DEGREES 100.0// 150.0
+#define SERVO_OPEN_DEGREES 130.0// 150.0
 
-#define DRIVE_GAIN -1.0
+#define DRIVE_GAIN -8.0
 
 // values tuned for the tentacle valve servos - 130/550
 #define SERVOMIN  130 //150 // this is the 'minimum' pulse length count (out of 4096)
@@ -96,16 +96,54 @@ void Bellows::setup()
   
   muxSelect(muxAddress);
   startBmp280(&bmp280);
+
 /*
-  
-  delay(300);
+  Serial.println("Close");
+   driveServoAngle(inflateServo, 0.0);
+    driveServoAngle(deflateServo, 0.0);
+
+     delay(1000);
+    yield();
+    delay(1000);
+    yield();
+    delay(1000);
+    yield();
+
+    Serial.println("Open");
+  driveServoAngle(inflateServo, 1.0);
+    driveServoAngle(deflateServo, 1.0);
+
+ delay(1000);
+    yield();
+    delay(1000);
+    yield();
+    delay(1000);
+    yield();
+
+  Serial.println("Deflate");
   yield();
   setDrive(-1.0);
-  delay(300);
-  yield();
-  setDrive(0);
+    delay(1000);
+    yield();
+    delay(1000);
+    yield();
+    delay(1000);
+    yield();
 
-  */
+  Serial.println("Inflate");
+
+  yield();
+  setDrive(-1);
+    delay(1000);
+        delay(1000);
+    yield();
+    delay(1000);
+    yield();
+    delay(1000);
+    yield();
+    */
+
+
 }
 
 void Bellows::loop()
@@ -136,13 +174,15 @@ void Bellows::loop()
     // a bit of smoothing
     currentPressure = 0.9 * currentPressure + 0.1 * pressure;
     
-    error = (targetPressure - currentPressure)/baselinePressure;
+    error = (currentPressure - targetPressure)/baselinePressure;
   }
+
+  drive = error * DRIVE_GAIN;
   
-  if( trace ){Serial.print("targetPressure "); Serial.println(targetPressure);}
-  if( trace ){Serial.print("currentPressure "); Serial.println(currentPressure);}
-  if( trace ){Serial.print("error fraction "); Serial.println(error);}
-  if( trace ){Serial.print("frustration "); Serial.println(frustration);}
+  if( traceBellows ){Serial.print("targetPressure "); Serial.println(targetPressure);}
+  if( traceBellows ){Serial.print("currentPressure "); Serial.println(currentPressure);}
+  if( traceBellows ){Serial.print("error fraction "); Serial.println(error);}
+  if( traceBellows ){Serial.print("drive "); Serial.println(drive);}
 
   if( fabs(error) < FRUSTRATION_LIMIT )
     frustration = 0;
@@ -150,23 +190,31 @@ void Bellows::loop()
     frustration += error * loopSeconds;
       
   // simple linear feedback
-  setDrive( error * DRIVE_GAIN);
+  setDrive( drive);
   
 }
 
 void Bellows::setDrive( float d ) // -1.0 to deflate, 1.0 to inflate
 {
   drive = fconstrain( d, -1.0, 1.0 );
-  
+  float inflateDrive = drive; //fconstrain( d, 0.60, 1.0 ); // never allow inflate servo to close, it stalls
+  float deflateDrive = - drive;
+  /*
+  if( drive > 0.0 )
+    deflateDrive = 0.0;
+  else
+    deflateDrive = - drive;
+   */ 
+
   if( drive > 0.0 ) //increase pressure
   {
-    driveServoAngle(inflateServo, drive);
-    driveServoAngle(deflateServo, 0.0);
+    driveServoAngle(inflateServo, inflateDrive);
+    driveServoAngle(deflateServo, 0);
   }
   else // decrease pressure
   {
-    driveServoAngle(inflateServo, 0.0);
-    driveServoAngle(deflateServo, -drive);
+    driveServoAngle(inflateServo, 0);
+    driveServoAngle(deflateServo, deflateDrive);
   }
   
 }
@@ -175,6 +223,8 @@ void Bellows::setDrive( float d ) // -1.0 to deflate, 1.0 to inflate
 
 void Bellows::driveServoAngle(int servoNum, float openFraction)
 {
+
+  openFraction = fconstrain( openFraction,0.0, 1.0 );
 
   if( trace )
     {Serial.print("openFraction "); Serial.println(openFraction);}

@@ -83,6 +83,7 @@ boolean trace = false;          // activity tracing for finding crashes - leave 
 boolean traceBehaviour = true;
 boolean traceNodes = false;
 boolean tracePressures = true;
+boolean traceBellows = true;
 boolean tracePirs = false;
 
 boolean enableBellows = true;  // turn on/off bellows code
@@ -135,7 +136,7 @@ float breatheFraction = 1.0;
 
 long breatheStartT = 0;
 float breathePeriod = 20000.0; // in millis
-float breatheAmplitude = 0.2;
+float breatheAmplitude = 0.9;
 
 float airboxAbsPressure = 0.0; //101000.0 + 1500.0; // Pa, about what we expect from our blower
 float atmosphericAbsPressure = 0.0; //101000.0; // Pa
@@ -169,7 +170,7 @@ void setupI2C()
 void setup() {
   setupDisplay();
   
-  delay(2000);
+  delay(5000);
   Serial.begin(115200);
 
 
@@ -280,8 +281,10 @@ boolean loopManual()
   if( nunchuckIdle())
     return false;
   
-  // TODO - return false when nunchuck idle
-  setInflateAmount(1.0+0.5*joyX);
+  float i = 0.5+0.5*joyX;
+  Serial.print("Manual inflate to ");
+  Serial.println(i);
+  setInflateAmount(i);
 
   return true;
 }
@@ -289,12 +292,16 @@ boolean loopManual()
 
 void setInflateAmount(float x) // 0.0 to 1.0 for 'just up' to 'full pressure'
 {
- 
+
+  //x = 0.0;
+
+  x = fmap(x, 0.0, 1.0, 100.0, 400.0 );
+  
   for( int b = 0; b < BELLOWS; b ++ )
   {
     Bellows *bellow = &(bellows[b]);
 
-    bellow->targetPressure = baselinePressure * x; //(0.2 + 0.8*x);
+    bellow->targetPressure = x;
   }
 
 
@@ -302,6 +309,14 @@ void setInflateAmount(float x) // 0.0 to 1.0 for 'just up' to 'full pressure'
 
 void loopWave()
 {
+
+  float period = 20.0;
+  
+  float phase = 2.0 * 3.1415 * fmod( ((float) millis()) / 1000.0, period ) / period; // radians
+  
+  float inflation = 0.5 + 0.5* sin(phase); // 0 to 1.0
+  
+  setInflateAmount(inflation);
    /*
   //float controlVal = analogRead(controlPotPin);   
 

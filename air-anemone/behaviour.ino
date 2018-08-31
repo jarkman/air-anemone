@@ -60,6 +60,10 @@ char *behaviourLabel()
 
 boolean loopBehaviour()
  {
+
+  return false;
+
+  
   if( ! enableBehaviour )
     return false;
 
